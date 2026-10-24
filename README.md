@@ -1,25 +1,42 @@
-# EasyChat Server
+# EasyChat Server（本地部署版）
 
-* 本服务是一个简单的聊天im软件后端程序，采用SpringBoot + Netty框架
-* 提供了单聊 群聊 发送消息 发送图片等简单功能
-* 提供了两种类型的客户端 Android 跟 JavaFx客户端
-* 具体的系统内容可以查看接口文档
+基于开源项目 [yetel/EasyChatServer](https://github.com/yetel/EasyChatServer)（Apache-2.0）的本地化部署版本。Spring Boot + Netty 实现的 IM 服务端，支持单聊、群聊、消息收发、图片发送。
 
-## 使用说明
-1. 拉取代码
-2. 修改配置文件 设置好自己的mysql跟redis服务信息
-3. 将application.properties中的spring.profiles.active配置为dev
-4. 从项目resource目录下面的sql目录获取表结构数据，运行创建表结构
-5. 说明文档可以查看resource目录下面的readme目录下的接口文档，基本接口信息都有记录
+## 技术栈
 
-## 启动说明
+- Spring Boot + MyBatis + PageHelper
+- Netty TCP 长连接，自定义二进制协议（长度字段 + 魔术值校验 + JSON 序列化）
+- MySQL 持久化 + Redis 会话 token 存储
+- Java 8
 
-> 执行下面的命令
-``` dos
-java -jar EasyChatServer.jar
-```
+## 本地运行
 
-## EasyChat相关开源项目
+1. 准备 MySQL 与 Redis，导入 `src/main/resources/sql/test.sql` 建表
+2. 数据库凭证走环境变量（有默认值，可直接跑）：
+   - `MYSQL_USER`（默认 root）
+   - `MYSQL_PASSWORD`（默认 123456）
+3. `spring.profiles.active` 已配置为 dev
+4. 启动：
 
-#### JavaFX客户端：[EasyChatJavaFXClient](https://github.com/yetel/EasyChatJavaFXClient)
-#### Android客户端：[EasyChatAndroidClient](https://github.com/yetel/EasyChatAndroidClient)
+   ```bash
+   mvn spring-boot:run
+   ```
+
+5. 端口：HTTP 服务 9004，Netty 长连接 8000
+
+## 相对原版的改动
+
+- **数据库凭证外置**：`application-dev.properties` 中账号密码改为 `${MYSQL_USER}` / `${MYSQL_PASSWORD}` 环境变量注入，不再硬编码
+- **新增测试工具**（`tools/`）：
+  - `start-test-env.bat`：测试环境一键启动
+  - `run-server.bat`：服务启动脚本
+  - `tcp_client.py`：Python TCP 客户端，用于登录与自定义协议联调
+- 推送脚本等本地工具已清理，不入库
+
+## 接口文档
+
+见 `src/main/resources/readme/` 下的接口文档，表结构见 `src/main/resources/sql/test.sql`。
+
+## 致谢与许可
+
+原项目版权归 yetel 所有，遵循 Apache-2.0 许可，详见 [LICENSE](LICENSE)。
